@@ -2,7 +2,14 @@
 
 
 def add(a: int, b: int) -> int:
-    return a + b
+    """Return the sum of a and b."""
+    result = a + b
+    return result
+
+
+def multiply(a: int, b: int) -> int:
+    """Return the product of a and b."""
+    return a * b
 
 
 def greet(name: str) -> str:
