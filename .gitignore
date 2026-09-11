@@ -1,32 +1,5 @@
-# Python
 __pycache__/
-*.py[cod]
-*$py.class
-*.egg-info/
-.eggs/
-dist/
-build/
 .venv/
-venv/
-env/
-
-# Tests / coverage
-.pytest_cache/
-.coverage
-htmlcov/
-
-# OS / éditeurs
-.DS_Store
-Thumbs.db
+.env
 .idea/
 .vscode/
-*.swp
-
-# Secrets (ne jamais versionner)
-.env
-.env.*
-!.env.example
-*.pem
-id_rsa
-id_ed25519
-secrets.json
