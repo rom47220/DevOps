@@ -1,4 +1,4 @@
-from src.app import add, greet
+from src.app import add, greet, multiply
 
 
 def test_add():
@@ -7,3 +7,7 @@ def test_add():
 
 def test_greet():
     assert greet("DevOps") == "Hello, DevOps!"
+
+
+def test_multiply():
+    assert multiply(2, 3) == 6
