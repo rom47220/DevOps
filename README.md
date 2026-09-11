@@ -19,3 +19,9 @@ Pas de push direct sur `main`.
 Commits en Conventional Commits (`feat`, `fix`, `chore`, `docs`).
 
 Membre GitHub : [rom47220](https://github.com/rom47220)
+
+## Lancer les tests
+
+```bash
+python -m pytest tests/
+```
