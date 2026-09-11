@@ -1,5 +1,7 @@
 # Atelier Git avancé & collaboratif — Séance 1
 
+Dépôt GitHub : https://github.com/rom47220/DevOps
+
 Dépôt du bloc DevOps (séance 1). Application minimale Python pour exercer
 rebase, conflits, cherry-pick, bisect, pull requests et protections GitHub.
 
@@ -41,7 +43,11 @@ Tous les membres du groupe doivent être **Collaborators** du dépôt GitHub
 dès l'étape 1 (Settings → Collaborators), sinon les PR et protections de
 l'étape 6 bloquent le travail.
 
-> À compléter : identifiants GitHub des membres du groupe.
+| Membre | GitHub |
+| --- | --- |
+| Romain | [@rom47220](https://github.com/rom47220) |
+
+> Ajouter les autres membres du groupe ici **et** dans Settings → Collaborators.
 
 ## Structure
 
