@@ -13,5 +13,6 @@ def multiply(a: int, b: int) -> int:
 
 
 def greet(name: str) -> str:
-    """Return a friendly greeting for name."""
+    if not name.strip():
+        raise ValueError("name must not be empty")
     return f"Hello, {name}!"
