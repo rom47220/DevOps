@@ -6,7 +6,7 @@ Mini app Python pour l'atelier DevOps (séance 1).
 
 ## Strategie
 
-On fait du **trunk-based** (pas Git Flow) : branches courtes, merge rapide sur `main`.
+On fait du **trunk-based** : branches courtes, merge rapide sur `main`.
 Nommage : `feat/<sujet>`, `fix/<sujet>`, `hotfix/<sujet>`, `chore/<sujet>`.
 
 ## Merge
