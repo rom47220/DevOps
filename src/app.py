@@ -1,4 +1,4 @@
-"""Mini calculatrice pour le projet."""
+"""Mini calculatrice pour le projet Devsecops."""
 
 
 def add(a: int, b: int) -> int:
