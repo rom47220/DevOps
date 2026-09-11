@@ -1,4 +1,4 @@
-"""Mini calculatrice pour le projet."""
+"""Mini calculatrice pour le projet Devsecops."""
 
 
 def add(a: int, b: int) -> int:
@@ -10,6 +10,11 @@ def add(a: int, b: int) -> int:
 def multiply(a: int, b: int) -> int:
     """Return the product of a and b."""
     return a * b
+
+
+def subtract(a: int, b: int) -> int:
+    """Return a minus b."""
+    return a - b
 
 
 def greet(name: str) -> str:
