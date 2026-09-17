@@ -2,58 +2,53 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-
-permissions:
-  contents: read
-
-defaults:
-  run:
-    working-directory: starter-app2
+    branches: [ main ]
 
 jobs:
   lint:
-    name: Lint
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./starter-app2
+
     steps:
-      - name: Checkout repository
+      - name: Checkout du code
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Installer Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: '3.12.3'
 
-      - name: Install dependencies
+      - name: Installer les dépendances
         run: pip install -r requirements.txt
 
-      - name: Run flake8
-        run: flake8 .
+      - name: Lancer flake8
+        run: flake8
 
   test:
-    name: Test (Python ${{ matrix.python-version }})
-    needs: lint
     runs-on: ubuntu-latest
+    needs: lint
+    defaults:
+      run:
+        working-directory: ./starter-app2
+
     strategy:
-      fail-fast: false
       matrix:
-        python-version:
-          - "3.10"
-          - "3.11"
-          - "3.12"
+        python-version: ['3.10', '3.11', '3.12']
 
     steps:
-      - name: Checkout repository
+      - name: Checkout du code
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Installer Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Cache pip dependencies
+      - name: Cache des dépendances pip
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
@@ -61,16 +56,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-${{ matrix.python-version }}-
 
-      - name: Install dependencies
+      - name: Installer les dépendances
         run: pip install -r requirements.txt
 
-      - name: Run tests with coverage
-        run: pytest -v --cov=app --cov-report=html
+      - name: Lancer les tests avec couverture
+        run: pytest --cov=. --cov-report=html
 
-      - name: Upload coverage report
+      - name: Upload du rapport de couverture
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-html-python-${{ matrix.python-version }}
-          path: starter-app2/htmlcov
-          if-no-files-found: warn
+          name: coverage-report-${{ matrix.python-version }}
+          path: starter-app2/htmlcov/
