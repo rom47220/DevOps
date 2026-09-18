@@ -46,3 +46,29 @@ Mesures réalisées avec `docker images devops-flask` :
 - Réduction du contenu : environ 87 %.
 
 L'image finale utilise un build multi-stage, Gunicorn et un utilisateur non-root.
+
+## Application Docker
+
+### Construire l'image
+
+    docker build -t devops-flask:multistage ./starter-app
+
+### Lancer les services
+
+    docker compose -f starter-app/docker-compose.yml up -d --build
+
+Endpoints disponibles :
+
+- http://localhost:5000/health
+- http://localhost:5000/status
+- http://localhost:5000/visits
+
+Pour arrêter :
+
+    docker compose -f starter-app/docker-compose.yml down
+
+### Image publiée
+
+    docker pull ghcr.io/rom47220/devops-flask:1.0.0
+
+Package : https://github.com/users/rom47220/packages/container/package/devops-flask
