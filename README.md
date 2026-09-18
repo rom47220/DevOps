@@ -36,3 +36,13 @@ python -m pip install -r requirements.txt
 python -m flake8 .
 python -m pytest -v --cov=app --cov-report=html
 ```
+
+## Comparaison des images Docker
+
+Mesures réalisées avec `docker images devops-flask` :
+
+- Image naïve (`python:3.12`) : 1,64 Go sur disque, 423 Mo de contenu.
+- Image multi-stage (`python:3.12-slim`) : 219 Mo sur disque, 53 Mo de contenu.
+- Réduction du contenu : environ 87 %.
+
+L'image finale utilise un build multi-stage, Gunicorn et un utilisateur non-root.
