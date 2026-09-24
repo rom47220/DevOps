@@ -40,3 +40,4 @@ def test_status_endpoint():
     body = response.get_json()
     assert body["service"] == "projet-devops-groupe-demo"
     assert "deploy_color" in body
+    assert "git_sha" in body

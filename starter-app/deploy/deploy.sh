@@ -9,6 +9,7 @@ STATE_FILE="deploy/active_color"
 NGINX_CONF="deploy/nginx/default.conf"
 RETRIES="${DEPLOY_RETRIES:-30}"
 SLEEP_SECS="${DEPLOY_SLEEP:-2}"
+EXPECTED_SHA="${EXPECTED_SHA:-${GIT_SHA:-${GITHUB_SHA:-}}}"
 
 log() {
   printf '[deploy] %s\n' "$*"
@@ -67,8 +68,19 @@ smoke_test() {
   local color="$1"
   local status_json
   status_json="$(check_endpoint "$color" /status)"
-  printf '%s\n' "$status_json" | grep -q "\"deploy_color\":\"${color}\"" \
-    || fail "smoke test failed: expected deploy_color=${color}, got: ${status_json}"
+  if ! printf '%s\n' "$status_json" | grep -q "\"deploy_color\":\"${color}\""; then
+    log "smoke test failed: expected deploy_color=${color}, got: ${status_json}"
+    return 1
+  fi
+
+  if [[ -n "$EXPECTED_SHA" ]]; then
+    if ! printf '%s\n' "$status_json" | grep -q "\"git_sha\":\"${EXPECTED_SHA}\""; then
+      log "smoke test failed: expected git_sha=${EXPECTED_SHA}, got: ${status_json}"
+      return 1
+    fi
+    log "git_sha OK (${EXPECTED_SHA})"
+  fi
+
   log "smoke test OK on app-${color}"
 }
 
@@ -93,11 +105,14 @@ main() {
     inactive="blue"
   fi
 
+  local up_args=(--profile "$inactive" up -d --no-deps "app-${inactive}")
+  if [[ "${DEPLOY_NO_BUILD:-0}" != "1" ]]; then
+    up_args=(--profile "$inactive" up -d --build --no-deps "app-${inactive}")
+  fi
+
   log "active=${active} inactive=${inactive}"
-  log "starting app-${inactive} (without restarting shared dependencies)"
-  # --no-deps: do not recreate redis/nginx. If Redis is down, health must fail
-  # and the active color must stay unchanged.
-  "${COMPOSE[@]}" --profile "$inactive" up -d --build --no-deps "app-${inactive}"
+  log "starting app-${inactive}"
+  "${COMPOSE[@]}" "${up_args[@]}"
 
   if ! wait_healthy "$inactive"; then
     rollback_inactive "$inactive"

@@ -72,3 +72,25 @@ Pour arrêter :
     docker pull ghcr.io/rom47220/devops-flask:1.0.0
 
 Package : https://github.com/users/rom47220/packages/container/package/devops-flask
+
+## Pipeline CI/CD (séance 4)
+
+Sur un push vers `main`, le pipeline enchaîne 4 jobs :
+
+1. `lint` (flake8)
+2. `test` (pytest, Python 3.10/3.11/3.12)
+3. `build-and-push` (image GHCR taguée `latest` + SHA)
+4. `deploy` (environnement GitHub `production`, blue/green via `deploy/deploy.sh`)
+
+Stratégie de déploiement : blue/green derrière nginx.
+Le smoke test vérifie `deploy_color` et `git_sha` avant toute bascule.
+En cas d'échec, la couleur active ne change pas.
+
+```bash
+# Stack locale
+docker compose -f starter-app/docker-compose.yml --profile blue up -d --build
+curl http://localhost:8088/status
+
+# Bascule blue -> green
+bash starter-app/deploy/deploy.sh
+```

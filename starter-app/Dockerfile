@@ -11,9 +11,11 @@ RUN pip install --no-cache-dir -r requirements-prod.txt
 
 FROM python:3.12-slim AS runtime
 
+ARG GIT_SHA=unknown
 ENV PATH="/opt/venv/bin:$PATH" \
     PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    GIT_SHA=${GIT_SHA}
 
 RUN useradd --create-home --uid 10001 appuser
 
