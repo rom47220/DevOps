@@ -2,6 +2,7 @@ import os
 
 import redis
 from flask import Flask, jsonify
+from redis.exceptions import RedisError
 
 app = Flask(__name__)
 
@@ -29,7 +30,12 @@ def get_redis_client():
 
 @app.route("/health")
 def health():
-    return jsonify(status="ok"), 200
+    try:
+        if get_redis_client().ping():
+            return jsonify(status="ok"), 200
+    except RedisError:
+        pass
+    return jsonify(status="unavailable", reason="redis"), 503
 
 
 @app.route("/status")
