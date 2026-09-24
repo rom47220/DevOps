@@ -8,10 +8,11 @@ on:
 
 permissions:
   contents: read
+  packages: write
 
 defaults:
   run:
-    working-directory: starter-app2
+    working-directory: starter-app
 
 jobs:
   lint:
@@ -57,7 +58,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('starter-app2/requirements.txt') }}
+          key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('starter-app/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-${{ matrix.python-version }}-
 
@@ -72,5 +73,31 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-html-python-${{ matrix.python-version }}
-          path: starter-app2/htmlcov
+          path: starter-app/htmlcov
           if-no-files-found: warn
+
+  build-and-push:
+    name: Build and push
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./starter-app
+          file: ./starter-app/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/devops-flask:latest
+            ghcr.io/${{ github.repository_owner }}/devops-flask:${{ github.sha }}

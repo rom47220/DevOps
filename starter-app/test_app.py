@@ -1,5 +1,7 @@
 from unittest.mock import MagicMock, patch
 
+from redis.exceptions import RedisError
+
 from app import alert_threshold, sanitize_input, app
 
 
@@ -23,7 +25,7 @@ def test_health_endpoint_ok():
 
 def test_health_endpoint_redis_down():
     mock_client = MagicMock()
-    mock_client.ping.side_effect = ConnectionError("redis down")
+    mock_client.ping.side_effect = RedisError("redis down")
     with patch("app.get_redis_client", return_value=mock_client):
         client = app.test_client()
         response = client.get("/health")
