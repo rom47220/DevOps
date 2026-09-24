@@ -98,6 +98,69 @@ jobs:
           context: ./starter-app
           file: ./starter-app/Dockerfile
           push: true
+          build-args: |
+            GIT_SHA=${{ github.sha }}
           tags: |
             ghcr.io/${{ github.repository_owner }}/devops-flask:latest
             ghcr.io/${{ github.repository_owner }}/devops-flask:${{ github.sha }}
+
+  deploy:
+    name: Deploy
+    needs: build-and-push
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      GIT_SHA: ${{ github.sha }}
+      EXPECTED_SHA: ${{ github.sha }}
+      DEPLOY_NO_BUILD: "1"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull released image
+        run: |
+          docker pull "ghcr.io/${{ github.repository_owner }}/devops-flask:${{ github.sha }}"
+          docker tag "ghcr.io/${{ github.repository_owner }}/devops-flask:${{ github.sha }}" devops-flask:multistage
+
+      - name: Start blue/green baseline
+        working-directory: starter-app
+        run: |
+          echo blue > deploy/active_color
+          printf '%s\n' \
+            'upstream app {' \
+            '    server app-blue:5000;' \
+            '}' \
+            '' \
+            'server {' \
+            '    listen 80;' \
+            '' \
+            '    location / {' \
+            '        proxy_pass http://app;' \
+            '        proxy_set_header Host $host;' \
+            '        proxy_set_header X-Real-IP $remote_addr;' \
+            '    }' \
+            '}' > deploy/nginx/default.conf
+          docker compose --profile blue up -d
+          sleep 8
+          curl -sf http://localhost:8088/health
+          curl -sf http://localhost:8088/status
+
+      - name: Run blue/green deploy
+        working-directory: starter-app
+        run: bash deploy/deploy.sh
+
+      - name: Verify active color switched
+        working-directory: starter-app
+        run: |
+          test "$(tr -d '[:space:]' < deploy/active_color)" = "green"
+          curl -sf http://localhost:8088/status | tee /tmp/status.json
+          grep -q '"deploy_color":"green"' /tmp/status.json
+          grep -q "\"git_sha\":\"${GIT_SHA}\"" /tmp/status.json
