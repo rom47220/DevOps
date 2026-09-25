@@ -94,3 +94,38 @@ curl http://localhost:8088/status
 # Bascule blue -> green
 bash starter-app/deploy/deploy.sh
 ```
+
+## Observabilite (seance 5)
+
+### Relancer la stack
+
+```bash
+docker compose -f starter-app/docker-compose.yml --profile blue up -d --build
+```
+
+Interfaces :
+
+| Service | URL | Acces |
+|---|---|---|
+| Application (nginx) | http://localhost:8088 | `/health`, `/status`, `/metrics`, `/simulate-error` |
+| Prometheus | http://localhost:9090 | Targets, Graph, Alerts |
+| Grafana | http://localhost:3000 | `admin` / `admin` (ou `GF_SECURITY_ADMIN_PASSWORD`) |
+
+### Dashboard Grafana
+
+Le dashboard **Flask Observability** est provisionne automatiquement
+(dossier Grafana `Observability`).
+
+Il affiche :
+
+- debit de requetes par endpoint
+- taux d'erreur global (5xx / total)
+- latence p95 (histogramme)
+
+### Alerte Prometheus
+
+Regle `HighErrorRate` dans `starter-app/observability/prometheus/alerts.yml` :
+
+- declenchee si le taux d'erreur HTTP depasse **5%** pendant **au moins 30s**
+- visible dans http://localhost:9090/alerts (`inactive` → `pending` → `firing`)
+- testable avec un trafic soutenu sur `/simulate-error`
