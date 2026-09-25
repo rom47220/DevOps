@@ -41,3 +41,13 @@ def test_status_endpoint():
     assert body["service"] == "projet-devops-groupe-demo"
     assert "deploy_color" in body
     assert "git_sha" in body
+
+
+def test_metrics_endpoint_exposes_counter():
+    client = app.test_client()
+    client.get("/status")
+    response = client.get("/metrics")
+    assert response.status_code == 200
+    body = response.data.decode("utf-8")
+    assert "http_requests_total" in body
+    assert 'endpoint="/status"' in body
