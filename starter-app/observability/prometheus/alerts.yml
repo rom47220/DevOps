@@ -1,0 +1,16 @@
+groups:
+  - name: flask-alerts
+    rules:
+      - alert: HighErrorRate
+        expr: |
+          (
+            sum(rate(http_requests_total{status=~"5.."}[1m]))
+            /
+            clamp_min(sum(rate(http_requests_total[1m])), 1e-9)
+          ) > 0.05
+        for: 30s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Taux d'erreur HTTP eleve"
+          description: "Le taux d'erreur depasse 5% depuis plus de 30 secondes."
