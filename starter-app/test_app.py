@@ -51,3 +51,20 @@ def test_metrics_endpoint_exposes_counter():
     body = response.data.decode("utf-8")
     assert "http_requests_total" in body
     assert 'endpoint="/status"' in body
+
+
+def test_metrics_endpoint_exposes_histogram():
+    client = app.test_client()
+    client.get("/status")
+    response = client.get("/metrics")
+    body = response.data.decode("utf-8")
+    assert "http_request_duration_seconds_bucket" in body
+    assert "http_request_duration_seconds_count" in body
+    assert "http_request_duration_seconds_sum" in body
+
+
+def test_simulate_error_endpoint():
+    client = app.test_client()
+    response = client.get("/simulate-error")
+    assert response.status_code == 500
+    assert response.get_json()["error"] == "simulated failure"
